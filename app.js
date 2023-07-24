@@ -1,8 +1,10 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-
-const taskList = [
+const bodyParser = require("body-parser");
+const listEditRouter = require("./list-edit-router");
+const listViewRouter = require("./list-view-router");
+const tasks = [
   {
     id: "1",
     isCompleted: false,
@@ -10,7 +12,7 @@ const taskList = [
   },
   {
     id: "2",
-    isCompleted: false,
+    isCompleted: true,
     description: "Buy groceries",
   },
   {
@@ -20,9 +22,15 @@ const taskList = [
   },
 ];
 
-app.get("/taskList", (req, res) => {
-  res.json(taskList);
+app.use(bodyParser.json());
+
+app.get("/tasksList", (req, res) => {
+  res.json(tasks);
 });
+
+app.use("/tasks/edit", listEditRouter);
+app.use("/tasks/view", listViewRouter);
+
 app.listen(port, () => {
   console.log("Servidor Express corriendo");
 });
