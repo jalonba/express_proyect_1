@@ -1,50 +1,48 @@
 const express = require("express");
-const app = express();
-const router = express.Router();
-const port = 3000;
+const listEditRouter = express.Router();
 
-const tasks = [
-  {
-    id: "1",
-    isCompleted: false,
-    description: "Walk the dog",
-  },
-  {
-    id: "2",
-    isCompleted: true,
-    description: "Buy groceries",
-  },
-  {
-    id: "3",
-    isCompleted: false,
-    description: "Clean the house",
-  },
-];
+const validationRequest = (req, res, next) => {
+  const { id, isCompleted, description } = req.body;
 
-router.post("/", (req, res) => {
-  const newTask = req.body;
-  tasks.push(newTask);
-  res.json({ message: "Tarea creada exitosamente.", task: newTask });
-});
+  if (!id || !isCompleted || !description) {
+    return res.status(400).json({ message: "Invalid information" });
+  }
 
-router.delete("/:id", (req, res) => {
-  const taskId = req.params.id;
-  tasks = tasks.filter((task) => task.id !== taskId);
-  res.json({ message: "Tarea eliminada exitosamente.", deletedTaskId: taskId });
-});
+  req.body.isCompleted = JSON.parse(isCompleted);
 
-router.put("/:id", (req, res) => {
-  const taskId = req.params.id;
-  const updatedTask = req.body;
+  next();
+};
 
-  tasks = tasks.map((task) => {
-    if (task.id === taskId) {
-      return { ...task, ...updatedTask };
-    }
-    return task;
+module.exports = (tasks) => {
+  listEditRouter.post("/create", validationRequest, (req, res) => {
+    const newTask = req.body;
+    tasks.push(newTask);
+    res.json(newTask);
   });
 
-  res.json({ message: "Tarea actualizada exitosamente.", updatedTask });
-});
+  listEditRouter.delete("/delete/:id", (req, res) => {
+    const taskId = parseInt(req.params.id);
+    const index = tasks.findIndex((task) => task.id === taskId);
+    if (index !== -1) {
+      const deletedTask = tasks.splice(index, 1);
+      res.json(deletedTask);
+    } else {
+      res.status(404).json({ message: "Task not found" });
+    }
+  });
 
-module.exports = router;
+  listEditRouter.put("/update/:id", validationRequest, (req, res) => {
+    const taskId = parseInt(req.params.id);
+    const updatedTask = req.body;
+    const index = tasks.findIndex((task) => task.id === taskId);
+    if (index !== -1) {
+      // Si se encuentra la tarea
+      tasks[index] = { ...tasks[index], ...updatedTask };
+      res.json(tasks[index]);
+    } else {
+      res.status(404).json({ message: "Task not found" });
+    }
+  });
+
+  return listEditRouter;
+};
