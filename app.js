@@ -5,24 +5,6 @@ const loginRoutes = require("./login-routes");
 
 app.use(express.json());
 
-const tasksList = [
-  {
-    id: "1",
-    isCompleted: false,
-    description: "Walk the dog",
-  },
-  {
-    id: "2",
-    isCompleted: true,
-    description: "Buy groceries",
-  },
-  {
-    id: "3",
-    isCompleted: false,
-    description: "Clean the house",
-  },
-];
-
 app.use((req, res, next) => {
   const methodValidate = req.method.toUpperCase();
 
@@ -34,16 +16,12 @@ app.use((req, res, next) => {
   next();
 });
 
-const listEditRouter = require("./list-edit-router")(tasksList);
-const listViewRouter = require("./list-view-router")(tasksList);
+const listEditRouter = require("./list-edit-router");
+const listViewRouter = require("./list-view-router");
 
-app.use("/list-view", listViewRouter);
-app.use("/list-edit", listEditRouter);
+app.use("/list-view", listEditRouter);
+app.use("/list-edit", listViewRouter);
 app.use(loginRoutes);
-
-app.get("/tasks", (req, res) => {
-  res.json(tasksList);
-});
 
 app.listen(port, () => {
   console.log(`Server running on port: ${port}`);

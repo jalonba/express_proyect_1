@@ -1,5 +1,6 @@
 const express = require("express");
 const listEditRouter = express.Router();
+const taskList = require("./tasksList.json");
 
 const validationRequest = (req, res, next) => {
   const { id, isCompleted, description } = req.body;
@@ -13,36 +14,49 @@ const validationRequest = (req, res, next) => {
   next();
 };
 
-module.exports = (tasksList) => {
-  listEditRouter.post("/create", validationRequest, (req, res) => {
+listEditRouter.post("/create", validationRequest, (req, res) => {
+  try {
     const newTask = req.body;
-    tasks.push(newTask);
-    res.json(newTask);
-  });
+    newTask.isCompleted = false;
+    taskList.push(newTask);
+    res.status(201).json({ message: "Task created successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
 
-  listEditRouter.delete("/delete/:id", (req, res) => {
+listEditRouter.delete("/delete/:id", (req, res) => {
+  try {
     const taskId = parseInt(req.params.id);
-    const index = tasksList.findIndex((task) => task.id === taskId);
+    const index = taskList.findIndex((task) => task.id === taskId);
     if (index !== -1) {
-      const deletedTask = tasksList.splice(index, 1);
-      res.json(deletedTask);
+      const deletedTask = taskList.splice(index, 1);
+      res.status(200).json({ message: "Task deleted successfully" });
     } else {
       res.status(404).json({ message: "Task not found" });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
 
-  listEditRouter.put("/update/:id", validationRequest, (req, res) => {
+listEditRouter.put("/update/:id", validationRequest, (req, res) => {
+  try {
     const taskId = parseInt(req.params.id);
     const updatedTask = req.body;
-    const index = tasks.findIndex((task) => task.id === taskId);
+    const index = taskList.findIndex((task) => task.id === taskId);
     if (index !== -1) {
-      // Si se encuentra la tarea
-      tasksList[index] = { ...tasksList[index], ...updatedTask };
-      res.json(tasksList[index]);
+      taskList[index] = { ...taskList[index], ...updatedTask };
+      res.status(200).json({ message: "Task updated successfully" });
     } else {
       res.status(404).json({ message: "Task not found" });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
 
-  return listEditRouter;
-};
+module.exports = listEditRouter;
