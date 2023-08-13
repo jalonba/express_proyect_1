@@ -13,7 +13,7 @@ const validationRequest = (req, res, next) => {
   next();
 };
 
-module.exports = (tasks) => {
+module.exports = (tasksList) => {
   listEditRouter.post("/create", validationRequest, (req, res) => {
     const newTask = req.body;
     tasks.push(newTask);
@@ -22,9 +22,9 @@ module.exports = (tasks) => {
 
   listEditRouter.delete("/delete/:id", (req, res) => {
     const taskId = parseInt(req.params.id);
-    const index = tasks.findIndex((task) => task.id === taskId);
+    const index = tasksList.findIndex((task) => task.id === taskId);
     if (index !== -1) {
-      const deletedTask = tasks.splice(index, 1);
+      const deletedTask = tasksList.splice(index, 1);
       res.json(deletedTask);
     } else {
       res.status(404).json({ message: "Task not found" });
@@ -37,8 +37,8 @@ module.exports = (tasks) => {
     const index = tasks.findIndex((task) => task.id === taskId);
     if (index !== -1) {
       // Si se encuentra la tarea
-      tasks[index] = { ...tasks[index], ...updatedTask };
-      res.json(tasks[index]);
+      tasksList[index] = { ...tasksList[index], ...updatedTask };
+      res.json(tasksList[index]);
     } else {
       res.status(404).json({ message: "Task not found" });
     }

@@ -1,12 +1,11 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const listEditRouter = require("./list-edit-router");
-const listViewRouter = require("./list-view-router");
+const loginRoutes = require("./login-routes");
 
 app.use(express.json());
 
-const tasks = [
+const tasksList = [
   {
     id: "1",
     isCompleted: false,
@@ -35,11 +34,15 @@ app.use((req, res, next) => {
   next();
 });
 
+const listEditRouter = require("./list-edit-router")(tasksList);
+const listViewRouter = require("./list-view-router")(tasksList);
+
 app.use("/list-view", listViewRouter);
 app.use("/list-edit", listEditRouter);
+app.use(loginRoutes);
 
 app.get("/tasks", (req, res) => {
-  res.json(tasks);
+  res.json(tasksList);
 });
 
 app.listen(port, () => {
